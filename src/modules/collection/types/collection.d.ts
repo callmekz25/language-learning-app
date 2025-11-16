@@ -1,11 +1,4 @@
-export type Collection = {
-  id: string;
-  name: string;
-  description: string;
-  tags: string[];
-  status: 'private' | 'public' | 'shared';
-  owner: string;
-  sharedWith: string[];
-  flashcards: Flashcard[];
-  createdAt: Date;
-};
+import type z from 'zod';
+import type { collectionSchema } from '../schemas/collection.schema';
+
+export type CollectionType = z.infer<typeof collectionSchema>;

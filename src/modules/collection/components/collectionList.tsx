@@ -13,16 +13,15 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { Collection } from '../types/collection';
+import type { CollectionType } from '../types/collection';
 import { useToast } from '@/shared/hooks/useToast';
 
-interface CollectionListProps {
-  collections: Collection[];
-  onEdit: (collection: Collection) => void;
+type CollectionListProps = {
+  collections: CollectionType[];
   onDelete: (id: string) => void;
-}
+};
 
-const CollectionList = ({ collections, onEdit, onDelete }: CollectionListProps) => {
+const CollectionList = ({ collections, onDelete }: CollectionListProps) => {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -35,7 +34,7 @@ const CollectionList = ({ collections, onEdit, onDelete }: CollectionListProps) 
     }
   };
 
-  const getStatusIcon = (status: Collection['status']) => {
+  const getStatusIcon = (status: CollectionType['status']) => {
     switch (status) {
       case 'public':
         return <Globe className="w-4 h-4 text-primary" />;
@@ -46,7 +45,7 @@ const CollectionList = ({ collections, onEdit, onDelete }: CollectionListProps) 
     }
   };
 
-  const getStatusText = (status: Collection['status']) => {
+  const getStatusText = (status: CollectionType['status']) => {
     switch (status) {
       case 'public':
         return 'Public';
@@ -120,7 +119,11 @@ const CollectionList = ({ collections, onEdit, onDelete }: CollectionListProps) 
                 <Eye className="w-4 h-4 mr-1" />
                 View
               </Button>
-              <Button variant="ghost" size="sm" onClick={() => onEdit(collection)}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate(`/collections/${collection.id}/edit`)}
+              >
                 <Pencil className="w-4 h-4" />
               </Button>
               <Button variant="ghost" size="sm" onClick={() => setDeleteId(collection.id)}>

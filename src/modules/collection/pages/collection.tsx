@@ -3,15 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Plus, FolderOpen } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import type { Collection } from '../types/collection';
-import CollectionForm from '../components/collectionForm';
 import CollectionList from '../components/collectionList';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Link } from 'react-router-dom';
 
 const Collections = () => {
   const [collections, setCollections] = useState<Collection[]>([
@@ -70,42 +63,8 @@ const Collections = () => {
     },
   ]);
 
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingCollection, setEditingCollection] = useState<Collection | null>(null);
-
-  const handleAddCollection = (collection: Omit<Collection, 'id' | 'createdAt' | 'owner'>) => {
-    const newCollection: Collection = {
-      ...collection,
-      id: Date.now().toString(),
-      owner: 'You',
-      createdAt: new Date(),
-    };
-    setCollections([...collections, newCollection]);
-    setIsFormOpen(false);
-  };
-
-  const handleEditCollection = (collection: Omit<Collection, 'id' | 'createdAt' | 'owner'>) => {
-    if (editingCollection) {
-      setCollections(
-        collections.map((c) => (c.id === editingCollection.id ? { ...c, ...collection } : c)),
-      );
-      setEditingCollection(null);
-      setIsFormOpen(false);
-    }
-  };
-
   const handleDeleteCollection = (id: string) => {
     setCollections(collections.filter((c) => c.id !== id));
-  };
-
-  const handleEditClick = (collection: Collection) => {
-    setEditingCollection(collection);
-    setIsFormOpen(true);
-  };
-
-  const handleCloseForm = () => {
-    setIsFormOpen(false);
-    setEditingCollection(null);
   };
 
   return (
@@ -123,10 +82,12 @@ const Collections = () => {
                 Organize your flashcards into collections
               </p>
             </div>
-            <Button onClick={() => setIsFormOpen(true)} size="lg">
-              <Plus className="w-5 h-5 mr-2" />
-              New Collection
-            </Button>
+            <Link to={`/collections/create`}>
+              <Button size="lg">
+                <Plus className="w-5 h-5 mr-2" />
+                New Collection
+              </Button>
+            </Link>
           </div>
 
           {/* Stats */}
@@ -155,36 +116,8 @@ const Collections = () => {
             </Card>
           </div>
 
-          {/* Dialog Form */}
-          <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-            <DialogContent className="lg:min-w-[800px] md:min-w-[600px] w-[90%] pl-6 pr-2">
-              <DialogHeader>
-                <DialogTitle>
-                  {editingCollection ? 'Edit Collection' : 'New Collection'}
-                </DialogTitle>
-                <DialogDescription>
-                  {editingCollection
-                    ? 'Update your collection details.'
-                    : 'Create a new flashcard collection.'}
-                </DialogDescription>
-              </DialogHeader>
-              <div className="max-h-[80vh] overflow-y-auto pr-4 ">
-                <CollectionForm
-                  onSubmit={editingCollection ? handleEditCollection : handleAddCollection}
-                  onCancel={handleCloseForm}
-                  initialData={editingCollection || undefined}
-                  isEditing={!!editingCollection}
-                />
-              </div>
-            </DialogContent>
-          </Dialog>
-
           {/* List */}
-          <CollectionList
-            collections={collections}
-            onEdit={handleEditClick}
-            onDelete={handleDeleteCollection}
-          />
+          <CollectionList collections={collections} onDelete={handleDeleteCollection} />
         </div>
       </div>
     </div>
