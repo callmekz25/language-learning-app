@@ -1,7 +1,7 @@
 import Login from './pages/login';
-import Register from './pages/register';
+import Signup from './pages/signup';
 
 export const authRoutes = [
   { path: '/login', element: <Login /> },
-  { path: '/register', element: <Register /> },
+  { path: '/register', element: <Signup /> },
 ];
