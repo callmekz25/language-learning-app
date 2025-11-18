@@ -1,4 +1,4 @@
-import { useFieldArray, useForm } from 'react-hook-form';
+import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
@@ -15,35 +15,35 @@ import {
 import { X, Plus, XIcon, UploadIcon } from 'lucide-react';
 import React, { useState } from 'react';
 import ImportFlashcardModal from './importFlashcardModal';
-import { collectionDetailSchema } from '../schemas/collection.schema';
-import type { CollectionDetailType } from '../types/collection';
+import { formCollectionSchema } from '../schemas/collection.schema';
+import type { FormCollectionType } from '../types/collection';
 import ExtractParagraphModal from './extractParagraphModal';
 
 type CollectionFormProps = {
-  onSubmit: (data: CollectionDetailType) => void;
-  initialData?: CollectionDetailType;
+  onSubmit: (data: FormCollectionType) => void;
+  initialData?: FormCollectionType;
   isEditing?: boolean;
+  isPending?: boolean;
 };
 
-const CollectionForm = ({ onSubmit, initialData, isEditing }: CollectionFormProps) => {
+const CollectionForm = ({ onSubmit, initialData, isEditing, isPending }: CollectionFormProps) => {
   const [openImportModal, setOpenImportModal] = React.useState(false);
   const [openExtractModal, setOpenExtractModal] = React.useState(false);
-  const [tags, setTags] = useState<string[]>(initialData?.tags || []);
+  const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
   const [sharedWith, setSharedWith] = useState<string[]>(initialData?.sharedWith || []);
   const [emailInput, setEmailInput] = useState('');
 
-  const form = useForm<CollectionDetailType>({
-    resolver: zodResolver(collectionDetailSchema),
+  const form = useForm<FormCollectionType>({
+    resolver: zodResolver(formCollectionSchema),
     defaultValues: {
       name: initialData?.name || '',
       description: initialData?.description || '',
       tags: initialData?.tags,
       access_level: initialData?.access_level || 'private',
-      sharedWith: initialData?.sharedWith || [],
+      // sharedWith: initialData?.sharedWith || [],
       flashcards: initialData?.flashcards || [
         {
-          id: Math.random(),
           term: '',
           definition: '',
         },
@@ -72,14 +72,14 @@ const CollectionForm = ({ onSubmit, initialData, isEditing }: CollectionFormProp
         description: initialData.description,
         tags: initialData.tags,
         access_level: initialData.access_level,
-        sharedWith: initialData.sharedWith,
+        // sharedWith: initialData.sharedWith,
         flashcards: initialData.flashcards,
       });
 
-      setTags(initialData.tags);
-      setSharedWith(initialData.sharedWith);
+      setTags(initialData.tags.split(' '));
+      // setSharedWith(initialData.sharedWith);
     }
-  }, [initialData, form, reset, append]);
+  }, [initialData, form, reset]);
 
   const access_level = watch('access_level');
 
@@ -87,7 +87,7 @@ const CollectionForm = ({ onSubmit, initialData, isEditing }: CollectionFormProp
     if (tagInput.trim() && !tags.includes(tagInput.trim())) {
       const newTags = [...tags, tagInput.trim()];
       setTags(newTags);
-      setValue('tags', newTags);
+      setValue('tags', newTags.join(' '));
       setTagInput('');
     }
   };
@@ -95,7 +95,7 @@ const CollectionForm = ({ onSubmit, initialData, isEditing }: CollectionFormProp
   const handleRemoveTag = (tag: string) => {
     const newTags = tags.filter((t) => t !== tag);
     setTags(newTags);
-    setValue('tags', newTags);
+    setValue('tags', newTags.join(' '));
   };
 
   const handleAddEmail = () => {
@@ -113,7 +113,11 @@ const CollectionForm = ({ onSubmit, initialData, isEditing }: CollectionFormProp
     setValue('sharedWith', newEmails);
   };
 
-  const onFormSubmit = (data: CollectionDetailType) => {
+  const onFormSubmit = (data: FormCollectionType) => {
+    console.log(data);
+
+    console.log('Submit');
+
     onSubmit(data);
   };
 
@@ -168,7 +172,7 @@ const CollectionForm = ({ onSubmit, initialData, isEditing }: CollectionFormProp
               </Button>
             </div>
             <div className="flex flex-wrap gap-2 mt-2">
-              {/* {tags.map((tag) => (
+              {tags.map((tag) => (
                 <span
                   key={tag}
                   className="inline-flex items-center gap-1 px-3 py-1 bg-primary/10 text-primary rounded-full text-sm"
@@ -182,30 +186,31 @@ const CollectionForm = ({ onSubmit, initialData, isEditing }: CollectionFormProp
                     <X className="w-3 h-3" />
                   </button>
                 </span>
-              ))} */}
+              ))}
             </div>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="status">Status *</Label>
-            <Select
-              defaultValue={initialData?.access_level || 'private'}
-              onValueChange={(value) =>
-                setValue('access_level', value as 'private' | 'public' | 'restrict')
-              }
-            >
-              <SelectTrigger className="w-full py-5">
-                <SelectValue placeholder="Select status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="private">Private</SelectItem>
-                <SelectItem value="public">Public</SelectItem>
-                <SelectItem value="shared">Shared with specific users</SelectItem>
-              </SelectContent>
-            </Select>
+            <Controller
+              name="access_level"
+              control={control}
+              render={({ field }) => (
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <SelectTrigger className="w-full py-5">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="private">Private</SelectItem>
+                    <SelectItem value="public">Public</SelectItem>
+                    <SelectItem value="shared">Shared with specific users</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            />
           </div>
 
-          {access_level === 'restrict' && (
+          {access_level === 'shared' && (
             <div className="space-y-2">
               <Label htmlFor="sharedWith">Share with (emails)</Label>
               <div className="flex gap-2">
@@ -306,7 +311,6 @@ const CollectionForm = ({ onSubmit, initialData, isEditing }: CollectionFormProp
             type="button"
             onClick={() =>
               append({
-                id: Math.random(),
                 term: '',
                 definition: '',
               })
@@ -320,7 +324,13 @@ const CollectionForm = ({ onSubmit, initialData, isEditing }: CollectionFormProp
         </div>
 
         <div className="flex gap-2">
-          <Button type="submit" size="lg" className="flex-1 py-6">
+          <Button
+            // onClick={() => console.log(form)}
+            isPending={isPending}
+            type="submit"
+            size="lg"
+            className="flex-1 py-6"
+          >
             {isEditing ? 'Update Collection' : 'Create Collection'}
           </Button>
           <Button type="button" variant="outline" size="lg" className="py-6">
