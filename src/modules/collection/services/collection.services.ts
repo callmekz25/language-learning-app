@@ -13,3 +13,8 @@ export const createCollection = async (payload: FormCollectionType) => {
   const { data } = await httpClient.post(`/collections`, payload);
   return data;
 };
+
+export const updateCollection = async (payload: FormCollectionType) => {
+  const { data } = await httpClient.put(`/collections/${payload.id}/edit`, payload);
+  return data;
+};

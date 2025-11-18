@@ -1,16 +1,12 @@
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Plus, FolderOpen } from 'lucide-react';
 import { Card } from '@/components/ui/card';
-import type { CollectionType } from '../types/collection';
 import CollectionList from '../components/collectionList';
 import { Link } from 'react-router-dom';
 import { useGetCollections } from '../hooks/collection.hooks';
 
 const Collections = () => {
   const { data, isLoading, isError } = useGetCollections();
-
-  console.log(data);
 
   const handleDeleteCollection = (id: string) => {};
 
@@ -58,7 +54,7 @@ const Collections = () => {
             <Card className="p-6">
               <div className="text-sm text-muted-foreground mb-1">Shared</div>
               <div className="text-3xl font-bold ">
-                {data?.filter((c) => c.access_level === 'restrict').length ?? 0}
+                {data?.filter((c) => c.access_level === 'shared').length ?? 0}
               </div>
             </Card>
           </div>

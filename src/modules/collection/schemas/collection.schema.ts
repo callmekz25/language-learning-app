@@ -17,6 +17,7 @@ export const collectionSchema = z.object({
 });
 
 export const formCollectionSchema = z.object({
+  id: z.number().optional().nullable(),
   name: z.string().min(1, 'Name is required').max(100),
   description: z.string().max(200),
   tags: z.string().optional().nullable(),

@@ -1,22 +1,39 @@
 import React from 'react';
 import CollectionForm from '../components/collectionForm';
-import type { CollectionDetailType } from '../types/collection';
+import type { FormCollectionType } from '../types/collection';
 import { useParams } from 'react-router-dom';
-import { useGetCollectionById } from '../hooks/collection.hooks';
+import { useGetCollectionById, useUpdateCollection } from '../hooks/collection.hooks';
+import { useToast } from '@/shared/hooks/useToast';
 
 const EditCollection = () => {
   const { id } = useParams();
+  const { toast } = useToast();
+  const { data, isLoading } = useGetCollectionById(Number(id));
 
-  const { data, isLoading, isError } = useGetCollectionById(id!);
+  const { mutate, isPending } = useUpdateCollection();
 
-  const handleEditCollection = (collection: CollectionDetailType) => {};
+  const handleUpdateCollection = (payload: FormCollectionType) => {
+    mutate(payload, {
+      onSuccess: () => {
+        toast('Update collection successful');
+      },
+      onError: () => {
+        toast('Update collection failed');
+      },
+    });
+  };
 
   if (isLoading) {
     return <span>Loading...</span>;
   }
   return (
     <div className=" container mx-auto py-10">
-      <CollectionForm onSubmit={handleEditCollection} initialData={data} isEditing={true} />
+      <CollectionForm
+        onSubmit={handleUpdateCollection}
+        initialData={data}
+        isEditing={true}
+        isPending={isPending}
+      />
     </div>
   );
 };
