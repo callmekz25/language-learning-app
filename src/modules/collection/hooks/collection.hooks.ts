@@ -1,5 +1,10 @@
-import { useQuery } from '@tanstack/react-query';
-import { getCollectionById, getCollections } from '../services/collection.services';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import {
+  createCollection,
+  getCollectionById,
+  getCollections,
+} from '../services/collection.services';
+import type { FormCollectionType } from '../types/collection';
 
 export const useGetCollections = () => {
   return useQuery({
@@ -12,5 +17,11 @@ export const useGetCollectionById = (id: number) => {
     queryKey: ['collections', id],
     queryFn: () => getCollectionById(id),
     enabled: !!id,
+  });
+};
+
+export const useCreateCollection = () => {
+  return useMutation({
+    mutationFn: (payload: FormCollectionType) => createCollection(payload),
   });
 };
