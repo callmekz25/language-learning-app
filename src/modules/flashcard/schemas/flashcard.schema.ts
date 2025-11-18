@@ -1,7 +1,7 @@
 import z from 'zod';
 
 export const FlashcardSchema = z.object({
-  id: z.number(),
+  id: z.number().optional().nullable(),
   term: z
     .string()
     .trim()

@@ -3,17 +3,26 @@ import { userSchema } from '@/modules/user/schemas/user.schema';
 import z from 'zod';
 
 export const collectionSchema = z.object({
-  id: z.string(),
+  id: z.number(),
   name: z.string().min(1, 'Name is required').max(100),
-  description: z.string().max(500),
+  description: z.string().max(200),
   tags: z.string(),
   owner: userSchema,
-  access_level: z.enum(['private', 'public', 'restrict']),
+  access_level: z.enum(['private', 'public', 'shared']),
   flashcards_count: z.number(),
   favorited_count: z.number(),
   played_count: z.number(),
   deleted_at: z.string(),
   created_at: z.string(),
+});
+
+export const formCollectionSchema = z.object({
+  name: z.string().min(1, 'Name is required').max(100),
+  description: z.string().max(200),
+  tags: z.string().optional().nullable(),
+  owner_id: z.number().optional(),
+  access_level: z.enum(['private', 'public', 'shared']),
+  flashcards: z.array(FlashcardSchema),
 });
 
 export const collectionDetailSchema = collectionSchema.extend({
