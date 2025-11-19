@@ -1,20 +1,14 @@
-import { useToast } from '@/shared/hooks/useToast';
 import CollectionForm from '../components/collectionForm';
-import { useCreateCollection } from '../hooks/collection.hooks';
 import type { FormCollectionType } from '../types/collection';
+import { useMutationWithToast } from '@/shared/hooks/useMutationWithToast';
+import { createCollection } from '../services/collection.services';
 
 const AddCollection = () => {
-  const { toast } = useToast();
-  const { mutate, isPending } = useCreateCollection();
+  const { mutate, isPending } = useMutationWithToast(createCollection, {
+    invalidateKeys: ['collections'],
+  });
   const handleCreateCollection = (payload: FormCollectionType) => {
-    mutate(payload, {
-      onSuccess: () => {
-        toast('Create collection successful');
-      },
-      onError: () => {
-        toast('Create collection failed');
-      },
-    });
+    mutate(payload);
   };
   return (
     <div className="container mx-auto py-10">
