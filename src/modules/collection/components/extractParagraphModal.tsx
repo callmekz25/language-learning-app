@@ -44,7 +44,7 @@ const ExtractParagraphModal = ({ open, onChange, setValues }: Props) => {
   const { register, handleSubmit } = form;
 
   const handleRemoveFlashcard = useCallback((id: number) => {
-    setFlashcards((prev) => prev.filter((card) => card.id !== id));
+    setFlashcards((prev) => prev.filter((_, index) => index !== id));
   }, []);
 
   const handleImportFlashcards = useCallback(() => {
@@ -68,7 +68,7 @@ const ExtractParagraphModal = ({ open, onChange, setValues }: Props) => {
               onSubmit={handleSubmit((data) => {
                 mutate(data, {
                   onSuccess: (data) => {
-                    setFlashcards(data.data);
+                    setFlashcards(data.flashcards);
                   },
                 });
               })}
@@ -95,9 +95,9 @@ const ExtractParagraphModal = ({ open, onChange, setValues }: Props) => {
             <div className="flex flex-col gap-4">
               <span className="font-bold">Flashcards Preview</span>
 
-              {flashcards.map((card) => {
+              {flashcards.map((card, index) => {
                 return (
-                  <div key={card.id} className="flex items-center">
+                  <div key={index} className="flex items-center">
                     <div className="flex items-center gap-8 w-full">
                       <div className="space-y-2 w-full">
                         <Label htmlFor="term">Term</Label>
@@ -106,6 +106,13 @@ const ExtractParagraphModal = ({ open, onChange, setValues }: Props) => {
                           placeholder="Enter term"
                           className="py-5"
                           value={card.term}
+                          onChange={(e) => {
+                            setFlashcards((prev) =>
+                              prev.map((c, i) =>
+                                i === index ? { ...c, term: e.target.value } : c,
+                              ),
+                            );
+                          }}
                         />
                       </div>
                       <div className="space-y-2 w-full">
@@ -115,12 +122,19 @@ const ExtractParagraphModal = ({ open, onChange, setValues }: Props) => {
                           placeholder="Enter definition"
                           className="py-5"
                           value={card.definition}
+                          onChange={(e) => {
+                            setFlashcards((prev) =>
+                              prev.map((c, i) =>
+                                i === index ? { ...c, definition: e.target.value } : c,
+                              ),
+                            );
+                          }}
                         />
                       </div>
                     </div>
                     <button
                       tabIndex={-1}
-                      onClick={() => handleRemoveFlashcard(card.id)}
+                      onClick={() => handleRemoveFlashcard(index)}
                       aria-label="Remove card"
                       className="p-4 pt-8 pb-4 hover:cursor-pointer"
                     >
