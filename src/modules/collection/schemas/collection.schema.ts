@@ -30,6 +30,10 @@ export const collectionDetailSchema = collectionSchema.extend({
   flashcards: z.array(FlashcardSchema),
 });
 
+export const formParagraphSchema = z.object({
+  content: z.string().min(1, 'Content is required').max(5000),
+});
+
 export const autoGenFlashcardsSchema = z.object({
   description: z.string().max(250),
 });

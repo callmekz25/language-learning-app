@@ -9,46 +9,48 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/shared/hooks/useToast';
 import { Upload, XIcon } from 'lucide-react';
 import React, { useCallback } from 'react';
-import type { UseFormSetValue } from 'react-hook-form';
-import type { FormCollectionType } from '../types/collection';
+import { useForm, type UseFormSetValue } from 'react-hook-form';
+import type { FormCollectionType, FormParagraphType } from '../types/collection';
 import type { FlashcardType } from '@/modules/flashcard/types/flashcard';
+import { extractParagraph } from '../services/collection.services';
+import { useMutationWithToast } from '@/shared/hooks/useMutationWithToast';
+import { formCollectionSchema, formParagraphSchema } from '../schemas/collection.schema';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 type Props = {
   open: boolean;
   onChange: () => void;
-  value: FlashcardType[];
-  setValue: UseFormSetValue<FormCollectionType>;
+  setValues: (newCards: FlashcardType[]) => void;
 };
 
-const data = [
-  {
-    id: 4,
-    term: 'Deadline',
-    definition: 'The latest time by which something must be completed',
-  },
-  {
-    id: 5,
-    term: 'Stakeholder',
-    definition: 'A person with an interest in a business or project',
-  },
-];
+const ExtractParagraphModal = ({ open, onChange, setValues }: Props) => {
+  const [flashcards, setFlashcards] = React.useState<FlashcardType[]>([]);
 
-const ExtractParagraphModal = ({ open, onChange, value, setValue }: Props) => {
-  // const { toast } = useToast();
-  const [paragraph, setParagraph] = React.useState('');
-  const [flashcards, setFlashcards] = React.useState<FlashcardType[]>(data);
+  const { mutate, isPending } = useMutationWithToast(extractParagraph, {
+    invalidateKeys: ['extract-paragraph'],
+    success: 'Paragraph extracted successfully',
+    error: 'Failed to extract paragraph',
+  });
+
+  const form = useForm<FormParagraphType>({
+    resolver: zodResolver(formParagraphSchema),
+    defaultValues: {
+      content: '',
+    },
+  });
+
+  const { register, handleSubmit } = form;
 
   const handleRemoveFlashcard = useCallback((id: number) => {
     setFlashcards((prev) => prev.filter((card) => card.id !== id));
   }, []);
 
   const handleImportFlashcards = useCallback(() => {
-    setValue('flashcards', [...value, ...flashcards]);
+    setValues(flashcards);
     onChange();
-  }, [flashcards, setValue, value]);
+  }, [flashcards, setValues]);
 
   return (
     <Dialog open={open} onOpenChange={onChange}>
@@ -62,16 +64,34 @@ const ExtractParagraphModal = ({ open, onChange, value, setValue }: Props) => {
 
         <div className="max-h-[80vh] overflow-y-auto pr-4 ">
           <div className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="paragraphInput">Paste your paragraph here</Label>
-              <Textarea
-                id="paragraphInput"
-                className="text-[16px]"
-                value={paragraph}
-                onChange={(e) => setParagraph(e.target.value)}
-                rows={12}
-              />
-            </div>
+            <form
+              onSubmit={handleSubmit((data) => {
+                mutate(data, {
+                  onSuccess: (data) => {
+                    setFlashcards(data.data);
+                  },
+                });
+              })}
+            >
+              <div className="space-y-2">
+                <Label htmlFor="paragraphInput">Paste your paragraph here</Label>
+                <Textarea
+                  id="paragraphInput"
+                  className="text-[16px]"
+                  {...register('content')}
+                  rows={12}
+                />
+              </div>
+              <div className="flex mt-4 justify-end">
+                <Button
+                  isPending={isPending}
+                  type="submit"
+                  className="px-2 py-1 bg-gray-300 rounded-md font-light cursor-pointer hover:bg-gray-200 disabled:cursor-not-allowed disabled:bg-gray-500"
+                >
+                  {isPending ? 'Extracting...' : 'Extract Flashcards'}
+                </Button>
+              </div>
+            </form>
             <div className="flex flex-col gap-4">
               <span className="font-bold">Flashcards Preview</span>
 

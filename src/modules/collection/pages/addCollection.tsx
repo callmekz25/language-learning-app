@@ -9,6 +9,7 @@ const AddCollection = () => {
   const { mutate, isPending } = useMutationWithToast(createCollection, {
     invalidateKeys: ['collections'],
   });
+
   const handleCreateCollection = (payload: FormCollectionType) => {
     mutate(payload, {
       onSuccess: () => {
@@ -16,6 +17,7 @@ const AddCollection = () => {
       },
     });
   };
+  
   return (
     <div className="container mx-auto py-10">
       <CollectionForm

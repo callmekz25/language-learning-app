@@ -7,6 +7,7 @@ export const useGetCollections = () => {
     queryFn: getCollections,
   });
 };
+
 export const useGetCollectionById = (id: number) => {
   return useQuery({
     queryKey: ['collections', id],
