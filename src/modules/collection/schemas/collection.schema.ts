@@ -11,7 +11,7 @@ export const collectionSchema = z.object({
   access_level: z.enum(['private', 'public', 'shared']),
   flashcards_count: z.number(),
   favorited_count: z.number(),
-  played_count: z.number(),
+  viewed_count: z.number(),
   deleted_at: z.string(),
   created_at: z.string(),
 });
