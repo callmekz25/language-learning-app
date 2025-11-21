@@ -86,7 +86,7 @@ const CollectionForm = ({ onSubmit, initialData, isEditing, isPending }: Collect
         flashcards: initialData.flashcards,
       });
       if (initialData.tags) {
-        setTags(initialData.tags.split(' '));
+        setTags(initialData.tags.split(','));
       }
       // setSharedWith(initialData.sharedWith);
     }
@@ -98,7 +98,7 @@ const CollectionForm = ({ onSubmit, initialData, isEditing, isPending }: Collect
     if (tagInput.trim() && !tags.includes(tagInput.trim())) {
       const newTags = [...tags, tagInput.trim()];
       setTags(newTags);
-      setValue('tags', newTags.join(' '));
+      setValue('tags', newTags.join(','));
       setTagInput('');
     }
   };
@@ -106,7 +106,7 @@ const CollectionForm = ({ onSubmit, initialData, isEditing, isPending }: Collect
   const handleRemoveTag = (tag: string) => {
     const newTags = tags.filter((t) => t !== tag);
     setTags(newTags);
-    setValue('tags', newTags.join(' '));
+    setValue('tags', newTags.join(','));
   };
 
   const handleAddEmail = () => {
