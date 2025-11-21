@@ -6,6 +6,7 @@ import FlashcardPractice from '@/modules/flashcard/components/flashcardPractice'
 import FlashcardList from '@/modules/flashcard/components/flashcardList';
 import { useGetCollectionById } from '../hooks/collection.hooks';
 import AddFlashcardModal from '@/modules/flashcard/components/addFlashcardModal';
+import FlashcardSkeleton from '@/modules/flashcard/components/flashcardSkeleton';
 
 const CollectionDetail = () => {
   const { id } = useParams();
@@ -15,9 +16,6 @@ const CollectionDetail = () => {
 
   const { data, isLoading, isError } = useGetCollectionById(id!);
 
-  if (isLoading) {
-    return <span>Loading...</span>;
-  }
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
@@ -66,7 +64,15 @@ const CollectionDetail = () => {
 
           <FlashcardPractice flashcards={data?.flashcards ?? []} />
 
-          <FlashcardList flashcards={data?.flashcards ?? []} />
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {Array.from({ length: 12 }).map((_, i) => (
+                <FlashcardSkeleton key={i} />
+              ))}
+            </div>
+          ) : (
+            <FlashcardList flashcards={data?.flashcards ?? []} />
+          )}
         </div>
       </div>
       <AddFlashcardModal open={addCard} onChange={() => setAddCard(false)} />

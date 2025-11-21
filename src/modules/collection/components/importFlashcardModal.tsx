@@ -15,6 +15,7 @@ import React from 'react';
 import type { UseFormSetValue } from 'react-hook-form';
 import type { FlashcardType } from '@/modules/flashcard/types/flashcard';
 import type { FormCollectionType } from '../types/collection';
+import { useDebounce } from '@/shared/hooks/useDebounce';
 
 type Props = {
   open: boolean;
@@ -32,51 +33,80 @@ const ImportFlashcardModal = ({ open, onChange, value, setValue }: Props) => {
     'line',
   );
   const [customCardDelimiter, setCustomCardDelimiter] = React.useState('');
+  const [flashcardsPreview, setFlashcardsPreview] = React.useState<FlashcardType[]>([]);
+  const debounceInput = useDebounce(bulkInput, 1000);
+
+  const parseFlashcards = (
+    text: string,
+    termDelimiter: string,
+    cardDelimiter: string,
+  ): FlashcardType[] => {
+    if (!text.trim()) return [];
+
+    const lines = text.split(cardDelimiter).filter((l) => l.trim());
+
+    return lines
+      .map((line) => {
+        const parts = line.split(termDelimiter);
+        if (parts.length < 2) return null;
+
+        return {
+          term: parts[0].trim(),
+          definition: parts.slice(1).join(termDelimiter).trim(),
+        };
+      })
+      .filter(Boolean) as FlashcardType[];
+  };
 
   const handleBulkImport = () => {
-    if (!bulkInput.trim()) return;
-    let cardsFormat = '\n';
-    if (cardsDelimiter === 'semicolon') {
-      cardsFormat = ';';
-    } else if (cardsDelimiter === 'custom') {
-      cardsFormat = customCardDelimiter;
-    }
-    const lines = bulkInput.split(cardsFormat).filter((line) => line.trim());
-    const newFlashcards: FlashcardType[] = [];
-    let delimiter = '\t';
-
-    if (termDefDelimiter === 'comma') {
-      delimiter = ',';
-    } else if (termDefDelimiter === 'custom') {
-      delimiter = customDelimiter;
-    }
-
-    lines.forEach((line) => {
-      const parts = line.split(delimiter);
-      if (parts.length >= 2) {
-        const term = parts[0].trim();
-        const definition = parts.slice(1).join(delimiter).trim();
-        if (term && definition) {
-          newFlashcards.push({
-            id: `${Date.now()}-${Math.random()}`,
-            term,
-            definition,
-          });
-        }
-      }
-    });
-
-    if (newFlashcards.length > 0) {
-      const updatedFlashcards = [...value, ...newFlashcards];
-
+    if (flashcardsPreview.length > 0) {
+      const updatedFlashcards = [...value, ...flashcardsPreview];
       setValue('flashcards', updatedFlashcards);
       setBulkInput('');
       toast('Import successful');
     } else {
       toast('Import failed');
+      return;
     }
     onChange();
   };
+
+  const handleTabKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const target = e.target as HTMLTextAreaElement;
+      const start = target.selectionStart;
+      const end = target.selectionEnd;
+
+      const newValue = target.value.substring(0, start) + '\t' + target.value.substring(end);
+      setBulkInput(newValue);
+
+      requestAnimationFrame(() => {
+        target.selectionStart = target.selectionEnd = start + 1;
+      });
+    }
+  };
+
+  React.useEffect(() => {
+    if (!debounceInput.trim()) {
+      setFlashcardsPreview([]);
+      return;
+    }
+
+    let cardDelimiter = '\n';
+    if (cardsDelimiter === 'semicolon') cardDelimiter = ';';
+    if (cardsDelimiter === 'custom') cardDelimiter = customCardDelimiter;
+
+    let termDelimiter = '\t';
+    if (termDefDelimiter === 'comma') termDelimiter = ',';
+    if (termDefDelimiter === 'custom') termDelimiter = customDelimiter;
+
+    const parsed = parseFlashcards(debounceInput, termDelimiter, cardDelimiter);
+
+    setFlashcardsPreview(parsed);
+    console.log('Call Preview:', parsed);
+  }, [debounceInput, cardsDelimiter, customCardDelimiter, termDefDelimiter, customDelimiter]);
+
   return (
     <Dialog open={open} onOpenChange={onChange}>
       <DialogContent className="lg:min-w-[800px] md:min-w-[600px] w-[90%] pl-6 pr-2">
@@ -92,7 +122,8 @@ const ImportFlashcardModal = ({ open, onChange, value, setValue }: Props) => {
               <Label htmlFor="bulkInput">Paste your data here</Label>
               <Textarea
                 id="bulkInput"
-                className="text-[16px]"
+                onKeyDown={handleTabKey}
+                className="text-[16px] min-h-[90px]"
                 value={bulkInput}
                 onChange={(e) => setBulkInput(e.target.value)}
                 placeholder="Term 1: Definition 1&#10;Term 2: Definition 2&#10;Term 3: Definition 3"
@@ -130,6 +161,7 @@ const ImportFlashcardModal = ({ open, onChange, value, setValue }: Props) => {
                   <Label className="flex items-center gap-3 cursor-pointer">
                     <Input
                       type="radio"
+                      tabIndex={-1}
                       name="delimiter"
                       value="custom"
                       checked={termDefDelimiter === 'custom'}
@@ -198,6 +230,39 @@ const ImportFlashcardModal = ({ open, onChange, value, setValue }: Props) => {
                   </Label>
                 </div>
               </div>
+            </div>
+
+            <div className="flex flex-col gap-4">
+              <span className="font-bold">Flashcards Preview</span>
+
+              {flashcardsPreview.map((card) => {
+                return (
+                  <div key={card.id} className="flex items-center">
+                    <div className="flex items-center gap-8 w-full">
+                      <div className="space-y-2 w-full">
+                        <Label htmlFor="term">Term</Label>
+                        <Input
+                          id="term"
+                          readOnly
+                          placeholder="Enter term"
+                          className="py-5"
+                          value={card.term}
+                        />
+                      </div>
+                      <div className="space-y-2 w-full">
+                        <Label htmlFor="definition">Definition</Label>
+                        <Input
+                          id="definition"
+                          readOnly
+                          placeholder="Enter definition"
+                          className="py-5"
+                          value={card.definition}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
             <Button

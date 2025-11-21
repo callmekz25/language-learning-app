@@ -4,11 +4,12 @@ import { Card } from '@/components/ui/card';
 import CollectionList from '../components/collectionList';
 import { Link } from 'react-router-dom';
 import { useGetCollections } from '../hooks/collection.hooks';
+import CollectionSkeleton from '../components/collectionSkeleton';
 
 const Collections = () => {
   const { data, isLoading, isError } = useGetCollections();
 
-  const handleDeleteCollection = (id: string) => {};
+  const handleDeleteCollection = (id: number) => {};
 
   return (
     <div className="min-h-screen bg-background">
@@ -61,7 +62,11 @@ const Collections = () => {
 
           {/* List */}
           {isLoading ? (
-            <span>Loading...</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <CollectionSkeleton key={i} />
+              ))}
+            </div>
           ) : (
             <CollectionList collections={data!} onDelete={handleDeleteCollection} />
           )}

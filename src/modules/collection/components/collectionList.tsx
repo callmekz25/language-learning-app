@@ -1,28 +1,19 @@
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Pencil, Trash2, Eye, Users, Lock, Globe } from 'lucide-react';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { CollectionType } from '../types/collection';
 import { useToast } from '@/shared/hooks/useToast';
+import DeleteCollectionModal from './deleteCollectionModal';
 
 type CollectionListProps = {
   collections: CollectionType[];
-  onDelete: (id: string) => void;
+  onDelete: (id: number) => void;
 };
 
 const CollectionList = ({ collections, onDelete }: CollectionListProps) => {
-  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -38,7 +29,7 @@ const CollectionList = ({ collections, onDelete }: CollectionListProps) => {
     switch (status) {
       case 'public':
         return <Globe className="w-4 h-4 text-primary" />;
-      case 'restrict':
+      case 'shared':
         return <Users className="w-4 h-4 text-accent" />;
       case 'private':
         return <Lock className="w-4 h-4 text-muted-foreground" />;
@@ -49,7 +40,7 @@ const CollectionList = ({ collections, onDelete }: CollectionListProps) => {
     switch (status) {
       case 'public':
         return 'Public';
-      case 'restrict':
+      case 'shared':
         return 'Shared';
       case 'private':
         return 'Private';
@@ -73,7 +64,7 @@ const CollectionList = ({ collections, onDelete }: CollectionListProps) => {
           <Card key={collection.id} className="p-6  space-y-2 hover:shadow-lg transition-shadow">
             <div className="space-y-2">
               <div className="flex items-start justify-between">
-                <h3 className="text-xl font-bold text-foreground">{collection.name}</h3>
+                <h3 className="text-xl font-bold text-foreground min-h-14">{collection.name}</h3>
                 <div className="flex items-center gap-1 text-sm">
                   {getStatusIcon(collection.access_level)}
                   <span className="text-muted-foreground">
@@ -81,12 +72,12 @@ const CollectionList = ({ collections, onDelete }: CollectionListProps) => {
                   </span>
                 </div>
               </div>
-              <p className="text-muted-foreground text-sm line-clamp-2 break-all min-h-[40px]">
+              <p className="text-muted-foreground text-sm line-clamp-2 break-all min-h-10">
                 {collection.description ? collection.description : 'No description'}
               </p>
             </div>
 
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 min-h-6">
               {collection?.tags ? (
                 collection.tags.split(' ').map((tag) => (
                   <span key={tag} className="px-2 py-1 bg-primary/10 text-primary rounded text-xs">
@@ -135,22 +126,7 @@ const CollectionList = ({ collections, onDelete }: CollectionListProps) => {
           </Card>
         ))}
       </div>
-
-      <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will permanently delete this collection and all its flashcards. This action
-              cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteConfirm}>Delete</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteCollectionModal deleteId={deleteId} setDeleteId={setDeleteId} />
     </>
   );
 };

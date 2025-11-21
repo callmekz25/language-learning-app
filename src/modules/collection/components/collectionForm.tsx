@@ -12,12 +12,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { X, Plus, XIcon, UploadIcon } from 'lucide-react';
+import { X, Plus, XIcon, UploadIcon, SparklesIcon } from 'lucide-react';
 import React, { useState } from 'react';
 import ImportFlashcardModal from './importFlashcardModal';
 import { formCollectionSchema } from '../schemas/collection.schema';
 import type { FormCollectionType } from '../types/collection';
 import ExtractParagraphModal from './extractParagraphModal';
+import AutoGenFlashcardsModal from './autoGenFlashcardsModal';
+import FlashcardFields from '@/modules/flashcard/components/flashcardFields';
 
 type CollectionFormProps = {
   onSubmit: (data: FormCollectionType) => void;
@@ -29,6 +31,7 @@ type CollectionFormProps = {
 const CollectionForm = ({ onSubmit, initialData, isEditing, isPending }: CollectionFormProps) => {
   const [openImportModal, setOpenImportModal] = React.useState(false);
   const [openExtractModal, setOpenExtractModal] = React.useState(false);
+  const [openAutoGenModal, setOpenAutoGenModal] = React.useState(false);
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
   const [sharedWith, setSharedWith] = useState<string[]>(initialData?.sharedWith || []);
@@ -250,7 +253,6 @@ const CollectionForm = ({ onSubmit, initialData, isEditing, isPending }: Collect
           <div className="space-y-2 pt-4 border-t border-border">
             <div className="flex items-center gap-4">
               <Label>Flashcards ({fields.length})</Label>
-
               <Button
                 type="button"
                 className=" rounded-full"
@@ -268,40 +270,25 @@ const CollectionForm = ({ onSubmit, initialData, isEditing, isPending }: Collect
                 <UploadIcon />
                 <span>Extract Paragraph</span>
               </Button>
+              <Button
+                type="button"
+                className=" rounded-full"
+                onClick={() => setOpenAutoGenModal(true)}
+              >
+                <SparklesIcon />
+                <span>Auto gen</span>
+              </Button>
             </div>
             <div className="flex flex-col gap-4 mt-4">
               {fields.map((field, index) => {
                 return (
-                  <div key={field.id} className="flex items-center  mt-2">
-                    <div className="flex items-center gap-8 w-full">
-                      <div className="space-y-2 w-full">
-                        <Label htmlFor="term">Term</Label>
-                        <Input
-                          id="term"
-                          placeholder="Enter term"
-                          className="py-5"
-                          {...register(`flashcards.${index}.term`)}
-                        />
-                      </div>
-                      <div className="space-y-2 w-full">
-                        <Label htmlFor="definition">Definition</Label>
-                        <Input
-                          {...register(`flashcards.${index}.definition`)}
-                          id="definition"
-                          placeholder="Enter definition"
-                          className="py-5"
-                        />
-                      </div>
-                    </div>
-                    <button
-                      tabIndex={-1}
-                      aria-label="Remove card"
-                      className="p-4 pt-8 pb-4 hover:cursor-pointer"
-                      onClick={() => remove(index)}
-                    >
-                      <XIcon className="size-5 text-red-600" />
-                    </button>
-                  </div>
+                  <FlashcardFields
+                    key={index}
+                    index={index}
+                    card={field}
+                    onRemove={remove}
+                    register={register}
+                  />
                 );
               })}
             </div>
@@ -324,13 +311,7 @@ const CollectionForm = ({ onSubmit, initialData, isEditing, isPending }: Collect
         </div>
 
         <div className="flex gap-2">
-          <Button
-            // onClick={() => console.log(form)}
-            isPending={isPending}
-            type="submit"
-            size="lg"
-            className="flex-1 py-6"
-          >
+          <Button isPending={isPending} type="submit" size="lg" className="flex-1 py-6">
             {isEditing ? 'Update Collection' : 'Create Collection'}
           </Button>
           <Button type="button" variant="outline" size="lg" className="py-6">
@@ -349,6 +330,12 @@ const CollectionForm = ({ onSubmit, initialData, isEditing, isPending }: Collect
       <ExtractParagraphModal
         open={openExtractModal}
         onChange={() => setOpenExtractModal(false)}
+        value={fields}
+        setValue={setValue}
+      />
+      <AutoGenFlashcardsModal
+        open={openAutoGenModal}
+        onChange={() => setOpenAutoGenModal(false)}
         value={fields}
         setValue={setValue}
       />
