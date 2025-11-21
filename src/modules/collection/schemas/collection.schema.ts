@@ -29,3 +29,7 @@ export const formCollectionSchema = z.object({
 export const collectionDetailSchema = collectionSchema.extend({
   flashcards: z.array(FlashcardSchema),
 });
+
+export const formParagraphSchema = z.object({
+  content: z.string().min(1, 'Content is required').max(5000),
+});

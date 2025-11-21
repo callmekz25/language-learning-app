@@ -8,3 +8,4 @@ import type {
 export type CollectionType = z.infer<typeof collectionSchema>;
 export type CollectionDetailType = z.infer<typeof collectionDetailSchema>;
 export type FormCollectionType = z.infer<typeof formCollectionSchema>;
+export type FormParagraphType = z.infer<typeof formParagraphSchema>;

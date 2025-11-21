@@ -20,6 +20,7 @@ import type { FormCollectionType } from '../types/collection';
 import ExtractParagraphModal from './extractParagraphModal';
 import AutoGenFlashcardsModal from './autoGenFlashcardsModal';
 import FlashcardFields from '@/modules/flashcard/components/flashcardFields';
+import type { FlashcardType } from '@/modules/flashcard/types/flashcard';
 
 type CollectionFormProps = {
   onSubmit: (data: FormCollectionType) => void;
@@ -123,6 +124,9 @@ const CollectionForm = ({ onSubmit, initialData, isEditing, isPending }: Collect
     console.log(data);
     onSubmit(data);
   };
+
+  console.log('form errors', errors);
+  console.log(watch('flashcards'));
 
   return (
     <div className="">
@@ -330,9 +334,11 @@ const CollectionForm = ({ onSubmit, initialData, isEditing, isPending }: Collect
       <ExtractParagraphModal
         open={openExtractModal}
         onChange={() => setOpenExtractModal(false)}
-        value={fields}
-        setValue={setValue}
+        setValues={(newCards: FlashcardType[]) => {
+          setValue('flashcards', [...watch('flashcards'), ...newCards]);
+        }}
       />
+
       <AutoGenFlashcardsModal
         open={openAutoGenModal}
         onChange={() => setOpenAutoGenModal(false)}
