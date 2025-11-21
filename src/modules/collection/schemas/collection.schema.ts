@@ -29,3 +29,7 @@ export const formCollectionSchema = z.object({
 export const collectionDetailSchema = collectionSchema.extend({
   flashcards: z.array(FlashcardSchema),
 });
+
+export const autoGenFlashcardsSchema = z.object({
+  description: z.string().max(250),
+});
