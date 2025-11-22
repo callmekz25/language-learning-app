@@ -2,7 +2,7 @@ import { Card } from '@/components/ui/card';
 
 const FlashcardSkeleton = () => {
   return (
-    <Card className="p-4">
+    <Card className="p-6">
       <div className="space-y-3 animate-pulse">
         {/* Term + definition */}
         <div className="space-y-2">
@@ -12,8 +12,8 @@ const FlashcardSkeleton = () => {
 
         {/* Buttons */}
         <div className="flex gap-2 pt-2 border-t border-border">
-          <div className="h-9 w-full rounded-md bg-muted" />
-          <div className="h-9 w-full rounded-md bg-muted" />
+          <div className="h-10 w-full rounded-md bg-muted" />
+          <div className="h-10 w-full rounded-md bg-muted" />
         </div>
       </div>
     </Card>
