@@ -21,6 +21,7 @@ import ExtractParagraphModal from './extractParagraphModal';
 import AutoGenFlashcardsModal from './autoGenFlashcardsModal';
 import FlashcardFields from '@/modules/flashcard/components/flashcardFields';
 import type { FlashcardType } from '@/modules/flashcard/types/flashcard';
+import { useNavigate } from 'react-router-dom';
 
 type CollectionFormProps = {
   onSubmit: (data: FormCollectionType) => void;
@@ -30,6 +31,8 @@ type CollectionFormProps = {
 };
 
 const CollectionForm = ({ onSubmit, initialData, isEditing, isPending }: CollectionFormProps) => {
+  const navigate = useNavigate();
+
   const [openImportModal, setOpenImportModal] = React.useState(false);
   const [openExtractModal, setOpenExtractModal] = React.useState(false);
   const [openAutoGenModal, setOpenAutoGenModal] = React.useState(false);
@@ -83,7 +86,7 @@ const CollectionForm = ({ onSubmit, initialData, isEditing, isPending }: Collect
         flashcards: initialData.flashcards,
       });
       if (initialData.tags) {
-        setTags(initialData.tags.split(' '));
+        setTags(initialData.tags.split(','));
       }
       // setSharedWith(initialData.sharedWith);
     }
@@ -95,7 +98,7 @@ const CollectionForm = ({ onSubmit, initialData, isEditing, isPending }: Collect
     if (tagInput.trim() && !tags.includes(tagInput.trim())) {
       const newTags = [...tags, tagInput.trim()];
       setTags(newTags);
-      setValue('tags', newTags.join(' '));
+      setValue('tags', newTags.join(','));
       setTagInput('');
     }
   };
@@ -103,7 +106,7 @@ const CollectionForm = ({ onSubmit, initialData, isEditing, isPending }: Collect
   const handleRemoveTag = (tag: string) => {
     const newTags = tags.filter((t) => t !== tag);
     setTags(newTags);
-    setValue('tags', newTags.join(' '));
+    setValue('tags', newTags.join(','));
   };
 
   const handleAddEmail = () => {
@@ -332,7 +335,15 @@ const CollectionForm = ({ onSubmit, initialData, isEditing, isPending }: Collect
           >
             {isEditing ? 'Update Collection' : 'Create Collection'}
           </Button>
-          <Button type="button" variant="outline" size="lg" className="py-6">
+          <Button
+            type="button"
+            variant="outline"
+            size="lg"
+            className="py-6"
+            onClick={() => {
+              navigate(-1);
+            }}
+          >
             Cancel
           </Button>
         </div>

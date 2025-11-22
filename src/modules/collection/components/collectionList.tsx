@@ -79,7 +79,7 @@ const CollectionList = ({ collections, onDelete }: CollectionListProps) => {
 
             <div className="flex flex-wrap gap-2 min-h-6">
               {collection?.tags ? (
-                collection.tags.split(' ').map((tag) => (
+                collection.tags.split(',').map((tag) => (
                   <span key={tag} className="px-2 py-1 bg-primary/10 text-primary rounded text-xs">
                     {tag}
                   </span>
