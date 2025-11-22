@@ -1,6 +1,5 @@
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -12,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { X, Plus, XIcon, UploadIcon, SparklesIcon } from 'lucide-react';
+import { X, Plus, UploadIcon, SparklesIcon } from 'lucide-react';
 import React, { useState } from 'react';
 import ImportFlashcardModal from './importFlashcardModal';
 import { formCollectionSchema } from '../schemas/collection.schema';
@@ -125,6 +124,7 @@ const CollectionForm = ({ onSubmit, initialData, isEditing, isPending }: Collect
   };
 
   const onFormSubmit = (data: FormCollectionType) => {
+    // Need to clear empty flaschcard fields default
     const finalFlashcards = data.flashcards.filter(
       (fc) => fc.term.trim() !== '' || fc.definition.trim() !== '',
     );
