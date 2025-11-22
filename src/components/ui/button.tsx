@@ -55,6 +55,7 @@ function Button({
       data-slot="button"
       className={cn(
         buttonVariants({ variant, size, className }),
+        'hover:cursor-pointer',
         isPending && 'opacity-70 cursor-not-allowed',
       )}
       disabled={isPending || props.disabled}
