@@ -28,7 +28,7 @@ const Home = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              <Link to="/flashcards">
+              <Link to="/collections">
                 <Button size="lg" className="text-lg px-8 py-5 ">
                   Start Learning
                 </Button>
@@ -111,10 +111,9 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="border-t border-border py-8">
         <div className="container mx-auto px-4 text-center text-muted-foreground">
-          <p>© 2024 LinguaLearn. Made with ❤️ for language learners.</p>
+          <p>© 2025 LinguaLearn.</p>
         </div>
       </footer>
     </div>
