@@ -266,9 +266,10 @@ const ImportFlashcardModal = ({ open, onChange, value, setValue }: Props) => {
             </div>
 
             <Button
+              disabled={flashcardsPreview.length === 0}
               type="button"
               onClick={handleImport}
-              variant="secondary"
+              variant="default"
               className="w-full py-6"
             >
               <Upload className="w-4 h-4 mr-2" />
