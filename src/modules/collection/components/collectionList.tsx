@@ -4,26 +4,16 @@ import { Pencil, Trash2, Eye, Users, Lock, Globe } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { CollectionType } from '../types/collection';
-import { useToast } from '@/shared/hooks/useToast';
 import DeleteCollectionModal from './deleteCollectionModal';
 
 type CollectionListProps = {
   collections: CollectionType[];
-  onDelete: (id: number) => void;
 };
 
-const CollectionList = ({ collections, onDelete }: CollectionListProps) => {
+const CollectionList = ({ collections }: CollectionListProps) => {
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const { toast } = useToast();
-  const navigate = useNavigate();
 
-  const handleDeleteConfirm = () => {
-    if (deleteId) {
-      onDelete(deleteId);
-      setDeleteId(null);
-      toast('Collection deleted');
-    }
-  };
+  const navigate = useNavigate();
 
   const getStatusIcon = (status: CollectionType['access_level']) => {
     switch (status) {
@@ -95,18 +85,11 @@ const CollectionList = ({ collections, onDelete }: CollectionListProps) => {
               </div>
             </div>
 
-            {/* {collection.status === 'shared' && collection.sharedWith.length > 0 && (
-              <div className="pt-2 text-sm">
-                <span className="text-muted-foreground">Shared with: </span>
-                <span className="text-foreground">{collection.sharedWith.join(', ')}</span>
-              </div>
-            )} */}
-
             <div className="flex gap-2 pt-2">
               <Button
                 variant="outline"
                 size="sm"
-                className="flex-1"
+                className="flex-1 py-4.5"
                 onClick={() => navigate(`/collections/${collection.id}`)}
               >
                 <Eye className="w-4 h-4 mr-1" />
@@ -117,10 +100,10 @@ const CollectionList = ({ collections, onDelete }: CollectionListProps) => {
                 size="sm"
                 onClick={() => navigate(`/collections/${collection.id}/edit`)}
               >
-                <Pencil className="w-4 h-4" />
+                <Pencil className="size-4" />
               </Button>
               <Button variant="ghost" size="sm" onClick={() => setDeleteId(collection.id)}>
-                <Trash2 className="w-4 h-4" />
+                <Trash2 className="size-4" />
               </Button>
             </div>
           </Card>
