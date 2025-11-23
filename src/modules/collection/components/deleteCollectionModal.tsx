@@ -8,7 +8,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { useMutationWithToast } from '@/shared/hooks/useMutationWithToast';
 import React from 'react';
+import { deleteCollection } from '../services/collection.services';
 
 const DeleteCollectionModal = ({
   deleteId,
@@ -17,6 +19,18 @@ const DeleteCollectionModal = ({
   deleteId: number | null;
   setDeleteId: (value: number | null) => void;
 }) => {
+  const { mutate, isPending } = useMutationWithToast(deleteCollection, {
+    success: 'Delete success',
+    error: 'Delete failed',
+    invalidateKeys: ['collections'],
+  });
+
+  const handleConfirmDelete = () => {
+    if (isPending) return;
+    mutate(deleteId!);
+    setDeleteId(null);
+  };
+
   return (
     <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
       <AlertDialogContent>
@@ -29,7 +43,12 @@ const DeleteCollectionModal = ({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction>Delete</AlertDialogAction>
+          <AlertDialogAction
+            className="bg-red-500 text-white hover:bg-red-600"
+            onClick={handleConfirmDelete}
+          >
+            Delete
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
