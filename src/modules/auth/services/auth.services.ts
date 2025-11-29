@@ -10,3 +10,8 @@ export const Signup = async (payload: SignUpType) => {
   const { data } = await httpClient.post('/auth/signup', payload);
   return data;
 };
+
+export const Logout = async () => {
+  const { data } = await httpClient.post('/auth/logout');
+  return data;
+};
