@@ -4,7 +4,9 @@ const detectLanguage = (text: string): string => {
   if (/[\u3130-\u318F\uAC00-\uD7A3]/.test(text)) return 'ko-KR'; // Korean
   if (/[\u0E00-\u0E7F]/.test(text)) return 'th-TH'; // Thai
   if (/[\u0900-\u097F]/.test(text)) return 'hi-IN'; // Hindi
-
+  if (/[àâæçéèêëîïôœùûüÿ]/i.test(text)) return 'fr-FR';
+  // Russian (Cyrillic)
+  if (/[\u0400-\u04FF]/.test(text)) return 'ru-RU';
   return 'en-US'; // fallback
 };
 
