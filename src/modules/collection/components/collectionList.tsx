@@ -1,6 +1,17 @@
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Pencil, Trash2, Eye, Users, Lock, Globe, HeartIcon, Ellipsis } from 'lucide-react';
+import {
+  Pencil,
+  Trash2,
+  Eye,
+  Users,
+  Lock,
+  Globe,
+  HeartIcon,
+  Ellipsis,
+  EyeIcon,
+  DotIcon,
+} from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { CollectionType } from '../types/collection';
@@ -109,14 +120,19 @@ const CollectionList = ({ collections, readOnly = false }: CollectionListProps) 
               </div>
             )}
 
-            <div className="flex items-center gap-2 my-4">
+            <div className="flex items-center my-4">
               <div className="text-xs font-medium text-primary bg-primary/20 rounded-full px-2.5 py-1 w-fit">
                 {collection.flashcards_count} terms
               </div>
-
-              <HeartIcon className="fill-red-500 text-red-500 size-4.5" />
+              <DotIcon className="size-8 opacity-60" />
+              <HeartIcon className="fill-red-500 text-red-500 size-4.5 mr-1" />
               <span className="text-sm font-medium text-muted-foreground">
                 ({collection.favorited_count})
+              </span>
+              <DotIcon className="size-8 opacity-60" />
+              <EyeIcon className="size-4.5 opacity-60 mr-1" />
+              <span className="text-sm font-medium text-muted-foreground">
+                ({collection.viewed_count})
               </span>
             </div>
 
