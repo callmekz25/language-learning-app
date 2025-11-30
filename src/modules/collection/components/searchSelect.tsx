@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React from 'react';
 import {
   Command,
   CommandGroup,
@@ -11,6 +11,8 @@ import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover
 import { Button } from '@/components/ui/button';
 import { Check, ChevronsUpDown, X } from 'lucide-react';
 import type { UserType } from '@/modules/user/types/user';
+import { useGetUsersByEmail } from '@/modules/user/hooks/user.hooks';
+import { useDebounce } from '@/shared/hooks/useDebounce';
 
 const SearchSelect = ({
   users,
@@ -19,20 +21,23 @@ const SearchSelect = ({
   users: UserType[];
   onChange: (value: UserType[]) => void;
 }) => {
-  const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState<UserType[]>([]);
+  const [open, setOpen] = React.useState(false);
+  const [email, setEmail] = React.useState('');
+
+  const debounce = useDebounce(email);
+
+  const { data, isLoading } = useGetUsersByEmail(debounce);
 
   const toggleUser = (user: UserType) => {
-    const exists = selected.some((u) => u.id === user.id);
+    const exists = users.some((u) => u.id === user.id);
 
     let newValue;
     if (exists) {
-      newValue = selected.filter((u) => u.id !== user.id);
+      newValue = users.filter((u) => u.id !== user.id);
     } else {
-      newValue = [...selected, user];
+      newValue = [...users, user];
     }
 
-    setSelected(newValue);
     onChange(newValue);
   };
 
@@ -48,27 +53,49 @@ const SearchSelect = ({
 
         <PopoverContent align="start" className="p-0 w-[500px]">
           <Command>
-            <CommandInput placeholder="Search email…" className="" />
+            <CommandInput
+              value={email}
+              onValueChange={setEmail}
+              placeholder="Search email…"
+              className=""
+            />
             <CommandList>
               <CommandEmpty>No results found.</CommandEmpty>
 
               <CommandGroup>
-                {users.map((user) => {
-                  const isSelected = selected.some((u) => u.id === user.id);
-                  return (
-                    <CommandItem
-                      key={user.id}
-                      value={user.email}
-                      className="py-3"
-                      onSelect={() => toggleUser(user)}
-                    >
-                      <Check
-                        className={`mr-2 h-4 w-4 ${isSelected ? 'opacity-100' : 'opacity-0'}`}
-                      />
-                      {user.email}
-                    </CommandItem>
-                  );
-                })}
+                {data
+                  ? data.map((user) => {
+                      const isSelected = users.some((u) => u.id === user.id);
+                      return (
+                        <CommandItem
+                          key={user.id}
+                          value={user.email}
+                          className="py-3"
+                          onSelect={() => toggleUser(user)}
+                        >
+                          <Check
+                            className={`mr-2 h-4 w-4 ${isSelected ? 'opacity-100' : 'opacity-0'}`}
+                          />
+                          {user.email}
+                        </CommandItem>
+                      );
+                    })
+                  : users.map((user) => {
+                      const isSelected = users.some((u) => u.id === user.id);
+                      return (
+                        <CommandItem
+                          key={user.id}
+                          value={user.email}
+                          className="py-3"
+                          onSelect={() => toggleUser(user)}
+                        >
+                          <Check
+                            className={`mr-2 h-4 w-4 ${isSelected ? 'opacity-100' : 'opacity-0'}`}
+                          />
+                          {user.email}
+                        </CommandItem>
+                      );
+                    })}
               </CommandGroup>
             </CommandList>
           </Command>
@@ -81,7 +108,7 @@ const SearchSelect = ({
             className="flex items-center gap-1 bg-accent px-2.5 py-1.5 rounded-full text-sm"
           >
             {user.email}
-            <button onClick={() => toggleUser(user)} className="hover:text-red-600">
+            <button type="button" onClick={() => toggleUser(user)} className="hover:text-red-600">
               <X className="w-4 h-4" />
             </button>
           </div>
