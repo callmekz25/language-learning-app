@@ -7,8 +7,12 @@ import type {
   FormParagraphType,
 } from '../types/collection';
 
-export const getCollections = async () => {
-  const { data } = await httpClient.get<CollectionType[]>('/collections');
+export const getCollections = async (
+  type?: 'public' | 'shared with me' | 'favorited' | 'recently',
+) => {
+  const { data } = await httpClient.get<CollectionType[]>(
+    `/collections${type ? `?type=${type}` : ''}`,
+  );
 
   return data;
 };
