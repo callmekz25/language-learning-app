@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Plus, Play, ShareIcon } from 'lucide-react';
+import { ArrowLeft, Plus, Play, ShareIcon, HeartIcon } from 'lucide-react';
 import FlashcardPractice from '@/modules/flashcard/components/flashcardPractice';
 import FlashcardList from '@/modules/flashcard/components/flashcardList';
 import { useGetCollectionById } from '../hooks/collection.hooks';
@@ -12,13 +12,25 @@ import FlashcardPraciceSkeleton from '@/modules/flashcard/components/flashcardPr
 import { useAuth } from '@/shared/hooks/useAuth';
 import Loading from '@/components/ui/loading';
 import { canEditCollection } from '@/shared/utils/permission';
+import { useQueryClient } from '@tanstack/react-query';
+import { useMutationWithToast } from '@/shared/hooks/useMutationWithToast';
+import { favoriteCollection } from '../services/collection.services';
 
 const CollectionDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [addCard, setAddCard] = useState(false);
   const { user, isLoading: ild } = useAuth();
-  const { data, isLoading, isError } = useGetCollectionById(Number(id!));
+  const { data, isLoading } = useGetCollectionById(Number(id!));
+  const queryClient = useQueryClient();
+
+  const { mutate } = useMutationWithToast(
+    ({ favorite, id }: { id: number; favorite: boolean }) => favoriteCollection(id, favorite),
+    {
+      success: 'Collection favorited',
+      error: 'Failed to favorite collection',
+    },
+  );
 
   const isOwner = canEditCollection(user, data!);
   const nameSplit = user?.name?.split(' ');
@@ -83,6 +95,35 @@ const CollectionDetail = () => {
                     )}
                     <Button variant="outline" size="lg">
                       <ShareIcon className="w-5 h-5" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      type="button"
+                      className={`flex-1 py-2 ${
+                        data?.is_favorited ? 'bg-red-500/10 text-red-500' : ''
+                      }`}
+                      onClick={() => {
+                        if (!data) return;
+
+                        mutate(
+                          { id: data.id, favorite: !data.is_favorited },
+                          {
+                            onSuccess: () => {
+                              queryClient.invalidateQueries({
+                                queryKey: ['collections', 'recently'],
+                              });
+                              queryClient.invalidateQueries({
+                                queryKey: ['collections', 'favorited'],
+                              });
+                              queryClient.invalidateQueries({ queryKey: ['collections'] });
+                              queryClient.invalidateQueries({ queryKey: ['collections', data.id] });
+                            },
+                          },
+                        );
+                      }}
+                    >
+                      <HeartIcon className="w-5 h-5" />
                     </Button>
                   </div>
                 </div>

@@ -20,6 +20,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Label } from '@/components/ui/label';
 import { useMutationWithToast } from '@/shared/hooks/useMutationWithToast';
 import { favoriteCollection } from '../services/collection.services';
+import { useQueryClient } from '@tanstack/react-query';
 
 type CollectionListProps = {
   collections: CollectionType[];
@@ -30,6 +31,7 @@ const CollectionList = ({ collections, readOnly = false }: CollectionListProps) 
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const { mutate } = useMutationWithToast(
     ({ favorite, id }: { id: number; favorite: boolean }) => favoriteCollection(id, favorite),
@@ -169,7 +171,13 @@ const CollectionList = ({ collections, readOnly = false }: CollectionListProps) 
                   onClick={() => {
                     mutate(
                       { id: collection.id, favorite: !collection.is_favorited },
-                      { onSuccess: () => {} },
+                      {
+                        onSuccess: () => {
+                          queryClient.invalidateQueries({ queryKey: ['collections', 'recently'] });
+                          queryClient.invalidateQueries({ queryKey: ['collections', 'favorited'] });
+                          queryClient.invalidateQueries({ queryKey: ['collections'] });
+                        },
+                      },
                     );
                   }}
                 >
