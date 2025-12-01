@@ -7,13 +7,15 @@ export const useGetCollections = (
   return useQuery({
     queryKey: ['collections', type],
     queryFn: () => getCollections(type),
+    retry: 0,
   });
 };
 
-export const useGetCollectionById = (id: number, userId?: number) => {
+export const useGetCollectionById = (id: number, userId?: number, loading?: boolean) => {
   return useQuery({
     queryKey: ['collections', id],
     queryFn: () => getCollectionById(id, userId),
-    enabled: !!id,
+    enabled: !!id && !loading,
+    retry: 0,
   });
 };
