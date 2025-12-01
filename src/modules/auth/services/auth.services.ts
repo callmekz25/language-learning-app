@@ -1,6 +1,7 @@
 import { httpClient } from '@/core/htpp/httpClient';
 import type { LoginType, SignUpType } from '../types/auth';
 import type { LoginResponse } from '../types/loginResponse';
+import type { ChangePasswordType } from '@/modules/user/types/user';
 
 export const Login = async (payload: LoginType) => {
   const { data } = await httpClient.post<LoginResponse>('/auth/login', payload);
@@ -20,6 +21,10 @@ export const VerifyEmail = async (payload: { token: string }) => {
 };
 export const ForgotPassword = async (payload: { email: string }) => {
   const { data } = await httpClient.post('/auth/forgot-password', payload);
+  return data;
+};
+export const ChangePassword = async (payload: ChangePasswordType) => {
+  const { data } = await httpClient.post('/auth/change-password', payload);
   return data;
 };
 export const Logout = async () => {

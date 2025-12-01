@@ -6,11 +6,12 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '@/shared/hooks/useAuth';
 import Loading from '@/components/ui/loading';
 import EditUserInfoModal from '@/modules/user/components/editUserInfoModal';
+import ChangePasswordModal from '@/modules/user/components/changePasswordModal';
 
 const Home = () => {
   const { isLoading } = useAuth();
 
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(true)
 
   if (isLoading) {
     return <Loading />;
@@ -124,7 +125,7 @@ const Home = () => {
         </div>
       </footer>
 
-      <EditUserInfoModal open={open} onChange={() => setOpen(true)} />
+      <ChangePasswordModal open={open} onChange={() => setOpen(true)} />
     </div>
   );
 };
