@@ -13,7 +13,11 @@ const EditUserInfoModal = ({
   onChange: () => void;
   initialData: UserInfoType;
 }) => {
-  const { mutate, isPending } = useMutationWithToast(editUserInfo, {});
+  const { mutate, isPending } = useMutationWithToast(editUserInfo, {
+    invalidateKeys: ['me'],
+    success: 'User info updated successfully!',
+    error: 'Failed to update user info. Please try again.',
+  });
 
   const handleAddFlashcard = (payload: UserInfoType) => {
     mutate(payload);
