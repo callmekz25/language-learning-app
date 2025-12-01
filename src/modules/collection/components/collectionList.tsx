@@ -71,7 +71,7 @@ const CollectionList = ({ collections, readOnly = false }: CollectionListProps) 
 
   if (collections.length === 0) {
     return (
-      <Card className="p-12 text-center">
+      <Card className="p-12 text-center border-none shadow-none">
         <p className="text-muted-foreground">
           No collections yet. Create your first collection to get started!
         </p>
