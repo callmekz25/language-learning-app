@@ -107,71 +107,72 @@ const CollectionDetail = () => {
                       <Play className="w-5 h-5 mr-2" />
                       Start Quiz
                     </Button>
-
                     {isOwner && (
-                      <div className="flex items-center gap-4">
-                        <Button onClick={() => setAddCard(true)} size="lg">
-                          <Plus className="w-5 h-5 mr-2" />
-                          Add Card
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="lg"
-                          type="button"
-                          className={`flex-1 py-2 `}
-                          onClick={() => {
-                            if (!data) return;
+                      <Button onClick={() => setAddCard(true)} size="lg">
+                        <Plus className="w-5 h-5 mr-2" />
+                        Add Card
+                      </Button>
+                    )}
+                    {user && (
+                      <Button
+                        variant="outline"
+                        size="lg"
+                        type="button"
+                        className={`flex-1 py-2 `}
+                        onClick={() => {
+                          if (!data) return;
 
-                            mutate(
-                              { id: data.id, favorite: !data.is_favorited },
-                              {
-                                onSuccess: () => {},
-                              },
-                            );
-                          }}
-                        >
-                          <HeartIcon
-                            className={`size-4 ${
-                              data!.is_favorited ? 'fill-red-500 text-red-500' : ''
-                            }`}
-                          />
-                        </Button>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <button className=" hover:cursor-pointer">
-                              <Ellipsis className="size-5" />
-                            </button>
-                          </PopoverTrigger>
-                          <PopoverContent className=" p-2 flex flex-col w-fit   gap-1">
-                            <Button
-                              variant="ghost"
-                              size="default"
-                              className="w-full flex items-center justify-start"
-                              onClick={() => navigate(`/collections/${id}/edit`)}
-                            >
-                              <Pencil className="size-4" />
-                              <Label>Edit</Label>
-                            </Button>
-                            <Button
-                              onClick={() => copyToClipboard(window.location.href)}
-                              className="w-full flex items-center justify-start"
-                              variant="ghost"
-                              size="default"
-                            >
-                              <Copy className="w-5 h-5" />
-                              <Label>Coppy link</Label>
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="default"
-                              className="w-full flex items-center justify-start text-red-500 hover:text-red-500"
-                              onClick={() => setDeleteId(Number(id))}
-                            >
-                              <Trash2 className="size-4" /> <Label>Delete</Label>
-                            </Button>
-                          </PopoverContent>
-                        </Popover>
-                      </div>
+                          mutate(
+                            { id: data.id, favorite: !data.is_favorited },
+                            {
+                              onSuccess: () => {},
+                            },
+                          );
+                        }}
+                      >
+                        <HeartIcon
+                          className={`size-4 ${
+                            data!.is_favorited ? 'fill-red-500 text-red-500' : ''
+                          }`}
+                        />
+                      </Button>
+                    )}
+                    {isOwner && (
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className=" hover:cursor-pointer">
+                            <Ellipsis className="size-5" />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className=" p-2 flex flex-col w-fit   gap-1">
+                          <Button
+                            variant="ghost"
+                            size="default"
+                            className="w-full flex items-center justify-start"
+                            onClick={() => navigate(`/collections/${id}/edit`)}
+                          >
+                            <Pencil className="size-4" />
+                            <Label>Edit</Label>
+                          </Button>
+                          <Button
+                            onClick={() => copyToClipboard(window.location.href)}
+                            className="w-full flex items-center justify-start"
+                            variant="ghost"
+                            size="default"
+                          >
+                            <Copy className="w-5 h-5" />
+                            <Label>Coppy link</Label>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="default"
+                            className="w-full flex items-center justify-start text-red-500 hover:text-red-500"
+                            onClick={() => setDeleteId(Number(id))}
+                          >
+                            <Trash2 className="size-4" /> <Label>Delete</Label>
+                          </Button>
+                        </PopoverContent>
+                      </Popover>
                     )}
                   </div>
                 </div>
