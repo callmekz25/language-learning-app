@@ -43,7 +43,7 @@ const LoginPage = () => {
           navigate('/unverify-email');
         } else if (data && data.token) {
           localStorage.setItem('token', data.token);
-          navigate('/');
+          navigate('/collections');
         }
       },
     });
