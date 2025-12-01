@@ -1,17 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import {
-  ArrowLeft,
-  Plus,
-  Play,
-  Ellipsis,
-  Pencil,
-  Trash2,
-  Copy,
-  ShareIcon,
-  HeartIcon,
-} from 'lucide-react';
+import { ArrowLeft, Plus, Play, Ellipsis, Pencil, Trash2, Copy, HeartIcon } from 'lucide-react';
 import FlashcardPractice from '@/modules/flashcard/components/flashcardPractice';
 import FlashcardList from '@/modules/flashcard/components/flashcardList';
 import { useGetCollectionById } from '../hooks/collection.hooks';
@@ -28,6 +18,8 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Label } from '@/components/ui/label';
 import DeleteCollectionModal from '../components/deleteCollectionModal';
 import { useCopyToClipboard } from '@/shared/hooks/useCopyToClipboard';
+import Forbidden from '@/core/pages/forbidden';
+import NotFound from '@/core/pages/notFound';
 
 const CollectionDetail = () => {
   const { id } = useParams();
@@ -36,7 +28,7 @@ const CollectionDetail = () => {
   const [addCard, setAddCard] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const { user, isLoading: ild } = useAuth();
-  const { data, isLoading } = useGetCollectionById(Number(id!), user?.id);
+  const { data, isLoading, isError, error } = useGetCollectionById(Number(id!), user?.id, ild);
 
   const { mutate } = useMutationWithToast(
     ({ favorite, id }: { id: number; favorite: boolean }) => favoriteCollection(id, favorite),
@@ -55,9 +47,16 @@ const CollectionDetail = () => {
   const { copyToClipboard } = useCopyToClipboard();
   const isOwner = canEditCollection(user, data!);
   const nameSplit = user?.name?.split(' ');
-
   if (ild) {
     return <Loading />;
+  }
+  if (isError) {
+    if (error.status === 403) {
+      return <Forbidden />;
+    }
+    if (error.status === 404) {
+      return <NotFound />;
+    }
   }
   return (
     <div className="min-h-screen bg-background">
@@ -115,6 +114,28 @@ const CollectionDetail = () => {
                           <Plus className="w-5 h-5 mr-2" />
                           Add Card
                         </Button>
+                        <Button
+                          variant="outline"
+                          size="lg"
+                          type="button"
+                          className={`flex-1 py-2 `}
+                          onClick={() => {
+                            if (!data) return;
+
+                            mutate(
+                              { id: data.id, favorite: !data.is_favorited },
+                              {
+                                onSuccess: () => {},
+                              },
+                            );
+                          }}
+                        >
+                          <HeartIcon
+                            className={`size-4 ${
+                              data!.is_favorited ? 'fill-red-500 text-red-500' : ''
+                            }`}
+                          />
+                        </Button>
                         <Popover>
                           <PopoverTrigger asChild>
                             <button className=" hover:cursor-pointer">
@@ -152,30 +173,6 @@ const CollectionDetail = () => {
                         </Popover>
                       </div>
                     )}
-                    <Button variant="outline" size="lg">
-                      <ShareIcon className="w-5 h-5" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="lg"
-                      type="button"
-                      className={`flex-1 py-2 ${data?.is_favorited ? 'bg-red-500/10 text-red-500' : ''
-                        }`}
-                      onClick={() => {
-                        if (!data) return;
-
-                        mutate(
-                          { id: data.id, favorite: !data.is_favorited },
-                          {
-                            onSuccess: () => {
-
-                            },
-                          },
-                        );
-                      }}
-                    >
-                      <HeartIcon className="w-5 h-5" />
-                    </Button>
                   </div>
                 </div>
                 <div className="my-6">
