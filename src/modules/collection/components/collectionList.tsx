@@ -22,7 +22,6 @@ import { Label } from '@/components/ui/label';
 import { useCopyToClipboard } from '@/shared/hooks/useCopyToClipboard';
 import { useMutationWithToast } from '@/shared/hooks/useMutationWithToast';
 import { favoriteCollection } from '../services/collection.services';
-import { useQueryClient } from '@tanstack/react-query';
 
 type CollectionListProps = {
   collections: CollectionType[];
@@ -33,11 +32,16 @@ const CollectionList = ({ collections, readOnly = false }: CollectionListProps) 
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const { copyToClipboard } = useCopyToClipboard();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
 
   const { mutate } = useMutationWithToast(
     ({ favorite, id }: { id: number; favorite: boolean }) => favoriteCollection(id, favorite),
     {
+      invalidateKeys: [
+        ['collections'],
+        ['collections', 'recently'],
+        ['collections', 'favorited'],
+        ['collections', 'public'],
+      ],
       success: 'Collection favorited',
       error: 'Failed to favorite collection',
     },
@@ -176,17 +180,14 @@ const CollectionList = ({ collections, readOnly = false }: CollectionListProps) 
                   variant="outline"
                   size="sm"
                   type="button"
-                  className={`flex-1 py-2 ${
-                    collection.is_favorited ? 'bg-red-500/10 text-red-500' : ''
-                  }`}
+                  className={`flex-1 py-2 ${collection.is_favorited ? 'bg-red-500/10 text-red-500' : ''
+                    }`}
                   onClick={() => {
                     mutate(
                       { id: collection.id, favorite: !collection.is_favorited },
                       {
                         onSuccess: () => {
-                          queryClient.invalidateQueries({ queryKey: ['collections', 'recently'] });
-                          queryClient.invalidateQueries({ queryKey: ['collections', 'favorited'] });
-                          queryClient.invalidateQueries({ queryKey: ['collections'] });
+
                         },
                       },
                     );

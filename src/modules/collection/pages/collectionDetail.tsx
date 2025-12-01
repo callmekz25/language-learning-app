@@ -22,7 +22,6 @@ import FlashcardPraciceSkeleton from '@/modules/flashcard/components/flashcardPr
 import { useAuth } from '@/shared/hooks/useAuth';
 import Loading from '@/components/ui/loading';
 import { canEditCollection } from '@/shared/utils/permission';
-import { useQueryClient } from '@tanstack/react-query';
 import { useMutationWithToast } from '@/shared/hooks/useMutationWithToast';
 import { favoriteCollection } from '../services/collection.services';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -38,11 +37,16 @@ const CollectionDetail = () => {
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const { user, isLoading: ild } = useAuth();
   const { data, isLoading } = useGetCollectionById(Number(id!), user?.id);
-  const queryClient = useQueryClient();
 
   const { mutate } = useMutationWithToast(
     ({ favorite, id }: { id: number; favorite: boolean }) => favoriteCollection(id, favorite),
     {
+      invalidateKeys: [
+        ['collections'],
+        ['collections', 'recently'],
+        ['collections', 'favorited'],
+        ['collections', 'public'],
+      ],
       success: 'Collection favorited',
       error: 'Failed to favorite collection',
     },
@@ -155,9 +159,8 @@ const CollectionDetail = () => {
                       variant="outline"
                       size="lg"
                       type="button"
-                      className={`flex-1 py-2 ${
-                        data?.is_favorited ? 'bg-red-500/10 text-red-500' : ''
-                      }`}
+                      className={`flex-1 py-2 ${data?.is_favorited ? 'bg-red-500/10 text-red-500' : ''
+                        }`}
                       onClick={() => {
                         if (!data) return;
 
@@ -165,14 +168,7 @@ const CollectionDetail = () => {
                           { id: data.id, favorite: !data.is_favorited },
                           {
                             onSuccess: () => {
-                              queryClient.invalidateQueries({
-                                queryKey: ['collections', 'recently'],
-                              });
-                              queryClient.invalidateQueries({
-                                queryKey: ['collections', 'favorited'],
-                              });
-                              queryClient.invalidateQueries({ queryKey: ['collections'] });
-                              // queryClient.invalidateQueries({ queryKey: ['collections', data.id] });
+
                             },
                           },
                         );
