@@ -6,10 +6,12 @@ import { useGetCollectionById } from '../hooks/collection.hooks';
 import { useMutationWithToast } from '@/shared/hooks/useMutationWithToast';
 import { updateCollection } from '../services/collection.services';
 import Loading from '@/components/ui/loading';
+import { useAuth } from '@/shared/hooks/useAuth';
 
 const EditCollection = () => {
   const { id } = useParams();
-  const { data, isLoading } = useGetCollectionById(Number(id));
+  const { user, isLoading: ild } = useAuth();
+  const { data, isLoading } = useGetCollectionById(Number(id), user?.id, ild);
 
   const { mutate, isPending } = useMutationWithToast(updateCollection, {
     invalidateKeys: ['collections', id!],
