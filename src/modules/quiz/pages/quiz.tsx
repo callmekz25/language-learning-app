@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { RotateCcw, Trophy, CheckIcon, XIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { FlashcardType } from '@/modules/flashcard/types/flashcard';
-import { useLocation, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useGetCollectionById } from '@/modules/collection/hooks/collection.hooks';
 import { shuffleArray } from '@/shared/utils/shuffleArray';
 
@@ -17,11 +17,12 @@ type Question = {
 
 const Quiz = () => {
   const { id } = useParams();
-
   const { data, isLoading, isError } = useGetCollectionById(Number(id!));
   const [currentQuestion, setCurrentQuestion] = React.useState(0);
   const [selectedAnswer, setSelectedAnswer] = React.useState<number | null>(null);
   const [showResult, setShowResult] = React.useState(false);
+  const [finished, setFinished] = React.useState(false);
+
   const [score, setScore] = React.useState(0);
   const [answers, setAnswers] = React.useState<{ questionId: string; correct: boolean }[]>([]);
   const [questions, setQuestions] = React.useState<Question[]>([]);
@@ -67,6 +68,8 @@ const Quiz = () => {
       setCurrentQuestion(currentQuestion + 1);
       setSelectedAnswer(null);
       setShowResult(false);
+    } else {
+      setFinished(true);
     }
   };
 
@@ -121,9 +124,8 @@ const Quiz = () => {
   }
   const question = questions[currentQuestion];
   const isCorrect = selectedAnswer === question?.correctAnswer;
-  const isQuizComplete = currentQuestion === questions.length - 1 && showResult;
 
-  if (isQuizComplete) {
+  if (finished) {
     const percentage = Math.round((score / questions.length) * 100);
     return (
       <div className="min-h-screen bg-background">

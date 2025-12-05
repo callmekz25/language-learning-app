@@ -71,7 +71,7 @@ const CollectionList = ({ collections, readOnly = false }: CollectionListProps) 
 
   if (collections.length === 0) {
     return (
-      <Card className="p-12 text-center">
+      <Card className="p-12 text-center border-none shadow-none">
         <p className="text-muted-foreground">
           No collections yet. Create your first collection to get started!
         </p>
@@ -180,9 +180,7 @@ const CollectionList = ({ collections, readOnly = false }: CollectionListProps) 
                   variant="outline"
                   size="sm"
                   type="button"
-                  className={`flex-1 py-2 ${
-                    collection.is_favorited ? 'bg-red-500/10 text-red-500' : ''
-                  }`}
+                  className={`flex-1 py-2 `}
                   onClick={() => {
                     mutate(
                       { id: collection.id, favorite: !collection.is_favorited },
@@ -192,7 +190,11 @@ const CollectionList = ({ collections, readOnly = false }: CollectionListProps) 
                     );
                   }}
                 >
-                  <HeartIcon className="w-4 h-4 " />
+                  <HeartIcon
+                    className={`size-4 ${
+                      collection.is_favorited ? 'fill-red-500 text-red-500' : ''
+                    }`}
+                  />
                 </Button>
               </div>
             </div>

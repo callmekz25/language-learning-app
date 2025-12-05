@@ -1,17 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import {
-  ArrowLeft,
-  Plus,
-  Play,
-  Ellipsis,
-  Pencil,
-  Trash2,
-  Copy,
-  ShareIcon,
-  HeartIcon,
-} from 'lucide-react';
+import { ArrowLeft, Plus, Play, Ellipsis, Pencil, Trash2, Copy, HeartIcon } from 'lucide-react';
 import FlashcardPractice from '@/modules/flashcard/components/flashcardPractice';
 import FlashcardList from '@/modules/flashcard/components/flashcardList';
 import { useGetCollectionById } from '../hooks/collection.hooks';
@@ -28,6 +18,8 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Label } from '@/components/ui/label';
 import DeleteCollectionModal from '../components/deleteCollectionModal';
 import { useCopyToClipboard } from '@/shared/hooks/useCopyToClipboard';
+import Forbidden from '@/core/pages/forbidden';
+import NotFound from '@/core/pages/notFound';
 
 const CollectionDetail = () => {
   const { id } = useParams();
@@ -36,7 +28,7 @@ const CollectionDetail = () => {
   const [addCard, setAddCard] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const { user, isLoading: ild } = useAuth();
-  const { data, isLoading } = useGetCollectionById(Number(id!), user?.id);
+  const { data, isLoading, isError, error } = useGetCollectionById(Number(id!), user?.id, ild);
 
   const { mutate } = useMutationWithToast(
     ({ favorite, id }: { id: number; favorite: boolean }) => favoriteCollection(id, favorite),
@@ -55,9 +47,16 @@ const CollectionDetail = () => {
   const { copyToClipboard } = useCopyToClipboard();
   const isOwner = canEditCollection(user, data!);
   const nameSplit = user?.name?.split(' ');
-
   if (ild) {
     return <Loading />;
+  }
+  if (isError) {
+    if (error.status === 403) {
+      return <Forbidden />;
+    }
+    if (error.status === 404) {
+      return <NotFound />;
+    }
   }
   return (
     <div className="min-h-screen bg-background">
@@ -108,73 +107,76 @@ const CollectionDetail = () => {
                       <Play className="w-5 h-5 mr-2" />
                       Start Quiz
                     </Button>
-
                     {isOwner && (
-                      <div className="flex items-center gap-4">
-                        <Button onClick={() => setAddCard(true)} size="lg">
-                          <Plus className="w-5 h-5 mr-2" />
-                          Add Card
-                        </Button>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <button className=" hover:cursor-pointer">
-                              <Ellipsis className="size-5" />
-                            </button>
-                          </PopoverTrigger>
-                          <PopoverContent className=" p-2 flex flex-col w-fit   gap-1">
-                            <Button
-                              variant="ghost"
-                              size="default"
-                              className="w-full flex items-center justify-start"
-                              onClick={() => navigate(`/collections/${id}/edit`)}
-                            >
-                              <Pencil className="size-4" />
-                              <Label>Edit</Label>
-                            </Button>
-                            <Button
-                              onClick={() => copyToClipboard(window.location.href)}
-                              className="w-full flex items-center justify-start"
-                              variant="ghost"
-                              size="default"
-                            >
-                              <Copy className="w-5 h-5" />
-                              <Label>Coppy link</Label>
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="default"
-                              className="w-full flex items-center justify-start text-red-500 hover:text-red-500"
-                              onClick={() => setDeleteId(Number(id))}
-                            >
-                              <Trash2 className="size-4" /> <Label>Delete</Label>
-                            </Button>
-                          </PopoverContent>
-                        </Popover>
-                      </div>
+                      <Button onClick={() => setAddCard(true)} size="lg">
+                        <Plus className="w-5 h-5 mr-2" />
+                        Add Card
+                      </Button>
                     )}
-                    <Button variant="outline" size="lg">
-                      <ShareIcon className="w-5 h-5" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="lg"
-                      type="button"
-                      className={`flex-1 py-2 ${
-                        data?.is_favorited ? 'bg-red-500/10 text-red-500' : ''
-                      }`}
-                      onClick={() => {
-                        if (!data) return;
+                    {user && (
+                      <Button
+                        variant="outline"
+                        size="lg"
+                        type="button"
+                        className={`flex-1 py-2 `}
+                        onClick={() => {
+                          if (!data) return;
 
-                        mutate(
-                          { id: data.id, favorite: !data.is_favorited },
-                          {
-                            onSuccess: () => {},
-                          },
-                        );
-                      }}
-                    >
-                      <HeartIcon className="w-5 h-5" />
-                    </Button>
+                          mutate(
+                            { id: data.id, favorite: !data.is_favorited },
+                            {
+                              onSuccess: () => {},
+                            },
+                          );
+                        }}
+                      >
+                        <HeartIcon
+                          className={`size-4 ${
+                            data!.is_favorited ? 'fill-red-500 text-red-500' : ''
+                          }`}
+                        />
+                      </Button>
+                    )}
+
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button className=" hover:cursor-pointer">
+                          <Ellipsis className="size-5" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className=" p-2 flex flex-col w-fit   gap-1">
+                        {isOwner && (
+                          <Button
+                            variant="ghost"
+                            size="default"
+                            className="w-full flex items-center justify-start"
+                            onClick={() => navigate(`/collections/${id}/edit`)}
+                          >
+                            <Pencil className="size-4" />
+                            <Label>Edit</Label>
+                          </Button>
+                        )}
+                        <Button
+                          onClick={() => copyToClipboard(window.location.href)}
+                          className="w-full flex items-center justify-start"
+                          variant="ghost"
+                          size="default"
+                        >
+                          <Copy className="w-5 h-5" />
+                          <Label>Coppy link</Label>
+                        </Button>
+                        {isOwner && (
+                          <Button
+                            variant="ghost"
+                            size="default"
+                            className="w-full flex items-center justify-start text-red-500 hover:text-red-500"
+                            onClick={() => setDeleteId(Number(id))}
+                          >
+                            <Trash2 className="size-4" /> <Label>Delete</Label>
+                          </Button>
+                        )}
+                      </PopoverContent>
+                    </Popover>
                   </div>
                 </div>
                 <div className="my-6">
